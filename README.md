@@ -2,11 +2,11 @@
 This Python program takes a series of images of cars and determines where their license plates are.
 
 Inputs: Images of cars.
-Outputs: Cropped images of license plates, clearing showing their numbers.
+Outputs: Cropped images of license plates, clearly showing their numbers.
 Constraints: Only front or back photos of cars in clear daylight.
 
 ### Running
-To run the program, simply place your photos inside `/images` and execute:
+To run the program, simply place your images inside `/images` and execute:
 
 `$ python main.py`
 
