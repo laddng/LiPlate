@@ -2,23 +2,25 @@
 This Python program takes a series of images of cars and determines where their license plates are.
 
 Inputs: Images of cars.
-Outputs: Cropped images of license plates, clearing showing their numbers.
+Outputs: Cropped images of license plates, clearly showing their numbers.
 Constraints: Only front or back photos of cars in clear daylight.
 
+### Algorithm
+In order to successfully locate license plates within our test images, we will use the famous SIFT algorithm to do the feature detection.
+
 ### Running
-To run the program, simply place your photos inside `/images` and execute:
+To run the program, simply place your images inside `/images` and execute:
 
 `$ python main.py`
 
 ### License
-This is an academic project for a CS class at Wake Forest University. It is purely for academic use
-and is licensed under the MIT license.
+This is an academic project for a CS class at Wake Forest University. It is purely for academic use and is licensed under the MIT license.
 
 ### Todo:
 
 #### Part 1
 * Read in images
-* Locate license plates in those images
+* Locate license plates in those images using the SIFT algorithm
 * Crop images to show just the license plates
 
 #### Part 2 (if time permits)
