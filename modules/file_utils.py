@@ -1,5 +1,4 @@
 import cv2;
-import numpy as np;
 import os;
 from modules.plate import *;
 
@@ -12,14 +11,4 @@ def loadImages(folder):
 		plates_array.append(plateObject);
 
 	return plates_array;
-
-def showResults():
-	plt.figure(0);
-
-	for image in Image.images:
-		plt.subplot(211);
-		plt.plot(image.image_file);
-		plt.show();
-
-	return True;
 

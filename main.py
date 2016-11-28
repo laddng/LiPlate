@@ -14,8 +14,6 @@ def run():
 	for plate in plates_array:
 		plate.findPlate(training_image);
 
-	print("[run]: SIFT search ended. End of program.");
-
 	return True;
 
 run();
