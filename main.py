@@ -1,18 +1,22 @@
 from modules.file_utils import *;
-from modules.sift import *;
-from modules.display_utils import *;
-from modules.ocr_utils import *;
-from modules.plates import *;
+from modules.plate import *;
 
 def run():
 
-  images = loadImages("images/cars/");
-  plates = locatePlates(images);
-  plate_numbers = readPlates(plates);
+	plates_array = loadImages("images/cars/");
+	training_image = cv2.imread("images/training_image.jpg");
+	training_image = cv2.cvtColor(training_image, cv2.COLOR_BGR2GRAY);
 
-  showResults(images, plates, plate_numbers);
+	print("[run]: All images have been downloaded.");
 
-  return True;
+	print("[run]: Starting SIFT search for images...");
+
+	for plate in plates_array:
+		plate.findPlate(training_image);
+
+	print("[run]: SIFT search ended. End of program.");
+
+	return True;
 
 run();
 
