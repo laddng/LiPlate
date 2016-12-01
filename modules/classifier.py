@@ -19,7 +19,7 @@ class Classifier:
 		blur = cv2.GaussianBlur(self.gray_image, (5,5), 0);
 		threshold = cv2.adaptiveThreshold(blur, 255, 1,1,11,2);
 
-		_,contours,hierarchy = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE);
+		image, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE);
 
 		samples = np.empty((0,100));
 		responses = [];
