@@ -6,6 +6,7 @@ import string;
 class Classifier:
 	""" License plate character classifier """
 	training_responses = [];
+	training_samples = [];
 
 	def __init__(self, image):
 		self.original_image = image;
@@ -47,4 +48,5 @@ class Classifier:
 		responses = responses.reshape((responses.size, 1));
 
 		self.training_responses.append(responses);
+		self.training_samples.append(samples);
 
