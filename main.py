@@ -4,15 +4,11 @@ from modules.plate import *;
 def run():
 
 	plates_array = loadImages("images/cars/");
-	training_image = cv2.imread("images/training_image.jpg");
-	training_image = cv2.cvtColor(training_image, cv2.COLOR_BGR2GRAY);
-
 	print("[run]: All images have been downloaded.");
 
-	print("[run]: Starting SIFT search for images...");
-
+	print("[run]: Starting contour search for plate shapes...");
 	for plate in plates_array:
-		plate.findPlate(training_image);
+		plate.findContour();
 
 	return True;
 

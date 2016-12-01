@@ -12,33 +12,19 @@ class Plate:
 
 	def grayImage(self):
 		self.gray_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY);
+		# apply a heavy gaussian blur
+		self.gray_image = cv2.GaussianBlur(self.gray_image, (45,45), 0);
 
-	def findPlate(self, training_image):
+	def findContour(self):
 		self.grayImage();
+		ret, threshold = cv2.threshold(self.gray_image, 127, 255, 0);
+		image, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
-		sift = cv2.xfeatures2d.SIFT_create();
+		print("[findContour]: "+str(len(contours))+" contours found...");
 
-		# find keypoints
-		key1, des1 = sift.detectAndCompute(self.gray_image, None);
-		key2, des2 = sift.detectAndCompute(training_image, None);
+		final_image = cv2.drawContours(self.original_image, contours, -1, (0,255,0), 4);
 
-		# BFMatcher
-		bf = cv2.BFMatcher();
-		matches = bf.knnMatch(des1, des2, k=2);
-
-		good = [];
-		for m,n in matches:
-			if m.distance < 0.5*n.distance:
-				good.append([m]);
-
-		final_image = self.gray_image;
-		final_image = cv2.drawMatchesKnn(self.gray_image, key1, training_image, key2, good, final_image, flags=2);
-
-		print("[findPlate]: Finished analysis, showing results...");
-
-		plt.imshow(final_image, 'gray'), plt.show();
-		return True;
-
-	def readPlate(self):
-		return True;
+		plt.figure();
+		plt.imshow(final_image);
+		plt.show();
 
