@@ -28,7 +28,7 @@ class Plate:
 
 		good = [];
 		for m,n in matches:
-			if m.distance < 0.5*n.distance:
+			if m.distance < 0.6*n.distance:
 				good.append([m]);
 
 		final_image = self.gray_image;
