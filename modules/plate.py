@@ -19,10 +19,21 @@ class Plate:
 		self.grayImage();
 		ret, threshold = cv2.threshold(self.gray_image, 127, 255, 0);
 		image, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
+		potential_plates = [];
+		w = 0;
 
 		print("[findContour]: "+str(len(contours))+" contours found...");
 
-		final_image = cv2.drawContours(self.original_image, contours, -1, (0,255,0), 4);
+		for contour in contours:
+			area = cv2.contourArea(contour);
+			if area > 200 and area < 400:
+				[w,h,x,y] = cv2.boundingRect(contour);
+
+			if w > 50:
+				potential_plates.append(contour);
+				cv2.fillPoly(self.original_image, pts=contour, color=(255,255,255));
+
+		#final_image = cv2.drawContours(self.original_image, potential_plates, -1, (0,255,0), 4);
 
 		plt.figure();
 		plt.imshow(final_image);
