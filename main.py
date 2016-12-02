@@ -4,12 +4,12 @@ from modules.plate import *;
 def run():
 
 	plates_array = loadImages("images/cars/");
-	print("[run]: All images have been downloaded.");
+	print("[run]: All testing images have been downloaded.");
 
-	print("[run]: Starting contour search for plate shapes...");
 	for plate in plates_array:
-		plate.findContour();
+		plate.plateSearch();
 
+	print("[run]: Finished plate recognition.");
 	return True;
 
 run();
