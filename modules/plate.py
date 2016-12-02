@@ -1,11 +1,13 @@
 import cv2;
 import numpy as np;
 from matplotlib import pyplot as plt;
+from copy import deepcopy, copy;
 
 class Plate:
 	""" Class for the license plates """
 	def __init__(self, image):
 		self.original_image = image;
+		self.plate_located_image = deepcopy(image); # created a deep copy
 		self.plate_image = None;
 		self.gray_image = None;
 		self.plate_number = "None";
@@ -40,7 +42,7 @@ class Plate:
 			# rough dimensions of a license plate
 			if w > 100 and w < 200 and h > 60 and h < 100:
 				self.roi.append([x,y,w,h]);
-				cv2.rectangle(self.original_image, (x,y), (x+w, y+h), (0,255,0), 10);
+				cv2.rectangle(self.plate_located_image, (x,y), (x+w, y+h), (0,255,0), 10);
 
 		print("[findContour]: "+str(len(self.roi))+" potential plates found...");
 		return True;
@@ -66,7 +68,7 @@ class Plate:
 
 		# plate located
 		plt.subplot(323);
-		plt.imshow(self.original_image);
+		plt.imshow(self.plate_located_image);
 		plt.xlabel("Plate located");
 
 		# plate cropped
