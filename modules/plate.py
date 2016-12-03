@@ -5,27 +5,29 @@ from copy import deepcopy, copy;
 
 class Plate:
 	""" Class for the license plates """
-	def __init__(self, image):
-		self.original_image = image;
-		self.plate_located_image = deepcopy(image); # created a deep copy
-		self.plate_image = None;
-		self.gray_image = None;
-		self.plate_number = "None";
-		self.roi = [];
+	def __init__(self, image):				### Plate Class Vars ###
+		self.original_image = image;			# original image of analysis
+		self.plate_located_image = deepcopy(image);	# original image with plate hilighted
+		self.plate_image = None;			# license plate cropped
+		self.plate_image_char = None;			# license plate cropped, chars outlined
+		self.gray_image = None;				# original image - grayscale for analysis
+		self.plate_number = "None found.";		# plate number
+		self.roi = [];					# regions of interest for plates
 
-	def grayImage(self):
-		self.gray_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY);
-		self.gray_image = cv2.GaussianBlur(self.gray_image, (29,29), 0);
-		return True;
+	def grayImage(self, image):
+		return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY);
 
 	def plateSearch(self):
 		self.findContour();
 		self.cropPlate();
+		if self.plate_image is not None:
+			self.readPlateNumber();
 		self.showResults();
 		return True;
 
 	def findContour(self):
-		self.grayImage();
+		self.gray_image = self.grayImage(deepcopy(self.original_image));
+		self.gray_image = cv2.GaussianBlur(self.gray_image, (29,29), 0);
 
 		ret, threshold = cv2.threshold(self.gray_image, 127, 255, 0);
 		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
@@ -51,32 +53,60 @@ class Plate:
 		if len(self.roi) > 1:
 			[x,y,w,h] = self.roi[0];
 			self.plate_image = self.original_image[y:y+h,x:x+w];
+			self.plate_image_char = deepcopy(self.plate_image);
+		return True;
+
+	def readPlateNumber(self):
+		self.plate_number = "License plate #: None found";
+		self.findCharacterContour();
+		return True;
+
+	def findCharacterContour(self):
+		gray_plate = self.grayImage(deepcopy(self.plate_image));
+		gray_plate = cv2.GaussianBlur(gray_plate, (5,5), 0);
+
+		_,threshold = cv2.threshold(gray_plate, 127, 255, 0);
+		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
+
+		character_roi = [];
+		w,h,x,y = 0,0,0,0;
+
+		print("[findCharacterContour]: "+str(len(contours))+" contours found.");
+		for contour in contours:
+			area = cv2.contourArea(contour);
+
+			# rough range of areas of a plate number
+			if area > 120 and area < 2000:
+				[x,y,w,h] = cv2.boundingRect(contour);
+
+			# rough dimensions of a character
+			if h > 20 and h < 90 and w > 10 and w < 50:
+				character_roi.append([x,y,w,h]);
+				cv2.rectangle(self.plate_image_char, (x,y), (x+w, y+h), (0,0,255), 1);
+
+		print("[findCharacterContour]: Plate characters found");
+		return True;
+
+	def plot(self, figure, subplot, image, title):
+		figure.subplot(subplot);
+		figure.imshow(image);
+		figure.xlabel(title);
+		figure.xticks([]);
+		figure.yticks([]);
 		return True;
 
 	def showResults(self):
-		plt.figure();
+		plt.figure(self.plate_number);
 
-		# original image
-		plt.subplot(321);
-		plt.imshow(self.original_image);
-		plt.xlabel("Original image");
+		self.plot(plt, 321, self.original_image, "Original image");
+		self.plot(plt, 322, self.gray_image, "Threshold image");
+		self.plot(plt, 323, self.plate_located_image, "Plate located");
 
-		# threshold image
-		plt.subplot(322);
-		plt.imshow(self.gray_image);
-		plt.xlabel("Threshold image");
-
-		# plate located
-		plt.subplot(323);
-		plt.imshow(self.plate_located_image);
-		plt.xlabel("Plate located");
-
-		# plate cropped
 		if self.plate_image is not None:
-			plt.subplot(324);
-			plt.imshow(self.plate_image);
-			plt.xlabel("License plate #: "+str(self.plate_number));
+			self.plot(plt, 324, self.plate_image, "License plate");
+			self.plot(plt, 325, self.plate_image_char, "Characters outlined");
 
+		plt.tight_layout();
 		plt.show();
 		return True;
 
