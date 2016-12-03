@@ -24,7 +24,7 @@ def loadCharacters(folder):
 	for character in os.listdir(folder):
 		logger.info("Loading character %s...", character);
 		character_file = cv2.imread(folder+character);
-		trainingCharacterObject = TrainingCharacter(character_file);
+		trainingCharacterObject = TrainingCharacter(character, character_file);
 		characters_array.append(trainingCharacterObject);
 	return characters_array;
 

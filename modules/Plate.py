@@ -1,7 +1,7 @@
 import cv2;
 import numpy as np;
 import logging;
-from TrainingCharacters import *;
+from modules.TrainingCharacter import *;
 from matplotlib import pyplot as plt;
 from copy import deepcopy, copy;
 from logging.config import fileConfig;
@@ -20,6 +20,7 @@ class Plate:
 		self.gray_image = None;				# original image - grayscale for analysis
 		self.plate_number = "None found.";		# plate number
 		self.roi = [];					# regions of interest for plates
+		self.plate_characters = [];			# cropped images of characters on plate
 		logger.info("New plate created.");
 
 	""" Converts original image to grayscale for analysis """
@@ -28,11 +29,11 @@ class Plate:
 		return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY);
 
 	""" Algorithm to find plate and read characters """
-	def plateSearch(self):
+	def plateSearch(self, characters_array):
 		self.findContour();
 		self.cropPlate();
 		if self.plate_image is not None:
-			self.readPlateNumber();
+			self.readPlateNumber(characters_array);
 		self.showResults();
 		return True;
 
@@ -42,7 +43,7 @@ class Plate:
 		self.gray_image = self.grayImage(deepcopy(self.original_image));
 		self.gray_image = cv2.GaussianBlur(self.gray_image, (29,29), 0);
 
-		ret, threshold = cv2.threshold(self.gray_image, 127, 255, 0);
+		ret, threshold = cv2.threshold(self.gray_image, 125, 255, 0);
 		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
 		w,h,x,y = 0,0,0,0;
@@ -73,18 +74,28 @@ class Plate:
 
 	""" Subalgorithm to read the license plate number using the
 	cropped image of a license plate """
-	def readPlateNumber(self):
+	def readPlateNumber(self, characters_array):
 		self.plate_number = "License plate #: None found";
 		self.findCharacterContour();
+		self.trainingComparison(characters_array);
 		return True;
+
+	""" Crops individual characters out of a plate image 
+	and converts it to grayscale for comparison """
+	def cropCharacter(self, dimensions):
+		[x,y,w,h] = dimensions;
+		character = deepcopy(self.plate_image);
+		character = deepcopy(character[y:y+h,x:x+w]);
+		character = cv2.cvtColor(character, cv2.COLOR_BGR2GRAY);
+		return character;
 
 	""" Finds contours in the cropped image of a license plate
 	that fit the dimension range of a letter or number """
 	def findCharacterContour(self):
 		gray_plate = self.grayImage(deepcopy(self.plate_image));
-		gray_plate = cv2.GaussianBlur(gray_plate, (5,5), 0);
+		gray_plate = cv2.GaussianBlur(gray_plate, (3,3), 0);
 
-		_,threshold = cv2.threshold(gray_plate, 127, 255, 0);
+		_,threshold = cv2.threshold(gray_plate, 140, 255, 0);
 		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
 		w,h,x,y = 0,0,0,0;
@@ -99,19 +110,30 @@ class Plate:
 
 			# rough dimensions of a character
 			if h > 20 and h < 90 and w > 10 and w < 50:
-				self.plate_characters.append([x,y,w,h]);
+				character = self.cropCharacter([x,y,w,h]);
+				self.plate_characters.append(character);
 				cv2.rectangle(self.plate_image_char, (x,y), (x+w, y+h), (0,0,255), 1);
 
 		logger.info("%s plate characters found", str(len(self.plate_characters)));
 		return True;
 
-	""" To read the characters in the plate, does a histogram
-	comparison against the 35 characters in our `characters` folder
-	to find a best match for the character """
-	def histogramComparison(self):
+	""" Character comparison against our training images """
+	def trainingComparison(self, characters_array):
 		logger.info("Attempting to read %s characters.", str(len(self.plate_characters)));
 		for character in self.plate_characters:
+			max_score = 0;
+			best_match = "*";
+			for training_character in characters_array:
+				# get score from comparison
+				score = 0;
+				character;
+				training_character.character_image;
 
+				if score > max_score:
+					best_match = training_character.character;
+
+			# append found character to plate number
+			self.plate_number += best_match;
 		return True;
 
 	""" Subplot generator for images """
