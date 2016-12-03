@@ -18,7 +18,7 @@ class Plate:
 		self.plate_image = None;			# license plate cropped
 		self.plate_image_char = None;			# license plate cropped, chars outlined
 		self.gray_image = None;				# original image - grayscale for analysis
-		self.plate_number = "None found.";		# plate number
+		self.plate_number = "";				# plate number
 		self.roi = [];					# regions of interest for plates
 		self.plate_characters = [];			# cropped images of characters on plate
 		logger.info("New plate created.");
@@ -41,10 +41,10 @@ class Plate:
 	in the image of a car """
 	def findContour(self):
 		self.gray_image = self.grayImage(deepcopy(self.original_image));
-		self.gray_image = cv2.GaussianBlur(self.gray_image, (29,29), 0);
+		self.gray_image = cv2.medianBlur(self.gray_image, 21);
 
-		ret, threshold = cv2.threshold(self.gray_image, 125, 255, 0);
-		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
+		_,self.gray_image = cv2.threshold(self.gray_image, 100, 255, cv2.THRESH_OTSU);
+		_,contours,_ = cv2.findContours(self.gray_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
 		w,h,x,y = 0,0,0,0;
 
@@ -75,7 +75,6 @@ class Plate:
 	""" Subalgorithm to read the license plate number using the
 	cropped image of a license plate """
 	def readPlateNumber(self, characters_array):
-		self.plate_number = "License plate #: None found";
 		self.findCharacterContour();
 		self.trainingComparison(characters_array);
 		return True;
@@ -156,7 +155,7 @@ class Plate:
 		if self.plate_image is not None:
 			self.plot(plt, 324, self.plate_image, "License plate");
 			self.plot(plt, 325, self.plate_image_char, "Characters outlined");
-
+			plt.subplot(326);plt.text(0,0,self.plate_number, fontsize=30);plt.xticks([]);plt.yticks([]);
 		plt.tight_layout();
 		plt.show();
 		return True;
