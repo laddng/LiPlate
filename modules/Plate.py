@@ -119,14 +119,12 @@ class Plate:
 	""" Character comparison against our training images using SIFT
 	algorithm """
 	def trainingComparison(self, characters_array):
-		detector = cv2.SIFT();
-		matcher = cv2.BFMatcher(cv2.NORM_L2);
 		logger.info("Attempting to read %s characters.", str(len(self.plate_characters)));
 		for character in self.plate_characters:
 			max_score = 0;
 			best_match = "*";
 			for training_character in characters_array:
-
+				score = 0;
 				if score > max_score:
 					best_match = training_character.character;
 
