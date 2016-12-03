@@ -1,10 +1,12 @@
 import cv2;
 import numpy as np;
+import logging;
+from TrainingCharacters import *;
 from matplotlib import pyplot as plt;
 from copy import deepcopy, copy;
-import logging;
 from logging.config import fileConfig;
 
+# logger setup
 fileConfig("logging_config.ini");
 logger = logging.getLogger();
 
@@ -20,10 +22,12 @@ class Plate:
 		self.roi = [];					# regions of interest for plates
 		logger.info("New plate created.");
 
+	""" Converts original image to grayscale for analysis """
 	def grayImage(self, image):
 		logger.info("Image converted to grayscale");
 		return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY);
 
+	""" Algorithm to find plate and read characters """
 	def plateSearch(self):
 		self.findContour();
 		self.cropPlate();
@@ -32,6 +36,8 @@ class Plate:
 		self.showResults();
 		return True;
 
+	""" Searches for a contour that looks like a license plate
+	in the image of a car """
 	def findContour(self):
 		self.gray_image = self.grayImage(deepcopy(self.original_image));
 		self.gray_image = cv2.GaussianBlur(self.gray_image, (29,29), 0);
@@ -56,6 +62,8 @@ class Plate:
 		logger.info("%s potential plates found.", str(len(self.roi)));
 		return True;
 
+	""" If a license plate contour has been found, crop
+	out the contour and create a new image """
 	def cropPlate(self):
 		if len(self.roi) > 1:
 			[x,y,w,h] = self.roi[0];
@@ -63,11 +71,15 @@ class Plate:
 			self.plate_image_char = deepcopy(self.plate_image);
 		return True;
 
+	""" Subalgorithm to read the license plate number using the
+	cropped image of a license plate """
 	def readPlateNumber(self):
 		self.plate_number = "License plate #: None found";
 		self.findCharacterContour();
 		return True;
 
+	""" Finds contours in the cropped image of a license plate
+	that fit the dimension range of a letter or number """
 	def findCharacterContour(self):
 		gray_plate = self.grayImage(deepcopy(self.plate_image));
 		gray_plate = cv2.GaussianBlur(gray_plate, (5,5), 0);
@@ -75,7 +87,6 @@ class Plate:
 		_,threshold = cv2.threshold(gray_plate, 127, 255, 0);
 		_,contours,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
-		character_roi = [];
 		w,h,x,y = 0,0,0,0;
 
 		logger.info("%s contours found.", str(len(contours)));
@@ -88,19 +99,22 @@ class Plate:
 
 			# rough dimensions of a character
 			if h > 20 and h < 90 and w > 10 and w < 50:
-				character_roi.append([x,y,w,h]);
+				self.plate_characters.append([x,y,w,h]);
 				cv2.rectangle(self.plate_image_char, (x,y), (x+w, y+h), (0,0,255), 1);
 
-		logger.info("Plate characters found");
+		logger.info("%s plate characters found", str(len(self.plate_characters)));
 		return True;
 
-	# we will have a catalogue of every character and number
-	# A-Z, 1-9 where we will compare the histogram to the 
-	# plate character and the highest score will be the correct
-	# plate character
+	""" To read the characters in the plate, does a histogram
+	comparison against the 35 characters in our `characters` folder
+	to find a best match for the character """
 	def histogramComparison(self):
+		logger.info("Attempting to read %s characters.", str(len(self.plate_characters)));
+		for character in self.plate_characters:
+
 		return True;
 
+	""" Subplot generator for images """
 	def plot(self, figure, subplot, image, title):
 		figure.subplot(subplot);
 		figure.imshow(image);
@@ -109,6 +123,7 @@ class Plate:
 		figure.yticks([]);
 		return True;
 
+	""" Show our results """
 	def showResults(self):
 		plt.figure(self.plate_number);
 
