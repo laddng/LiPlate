@@ -2,6 +2,11 @@ import cv2;
 import numpy as np;
 from matplotlib import pyplot as plt;
 from copy import deepcopy, copy;
+import logging;
+from logging.config import fileConfig;
+
+fileConfig("logging_config.ini");
+logger = logging.getLogger();
 
 class Plate:
 	""" Class for the license plates """
@@ -13,8 +18,10 @@ class Plate:
 		self.gray_image = None;				# original image - grayscale for analysis
 		self.plate_number = "None found.";		# plate number
 		self.roi = [];					# regions of interest for plates
+		logger.info("New plate created.");
 
 	def grayImage(self, image):
+		logger.info("Image converted to grayscale");
 		return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY);
 
 	def plateSearch(self):
@@ -46,7 +53,7 @@ class Plate:
 				self.roi.append([x,y,w,h]);
 				cv2.rectangle(self.plate_located_image, (x,y), (x+w, y+h), (0,255,0), 10);
 
-		print("[findContour]: "+str(len(self.roi))+" potential plates found...");
+		logger.info("%s potential plates found.", str(len(self.roi)));
 		return True;
 
 	def cropPlate(self):
@@ -71,7 +78,7 @@ class Plate:
 		character_roi = [];
 		w,h,x,y = 0,0,0,0;
 
-		print("[findCharacterContour]: "+str(len(contours))+" contours found.");
+		logger.info("%s contours found.", str(len(contours)));
 		for contour in contours:
 			area = cv2.contourArea(contour);
 
@@ -84,7 +91,7 @@ class Plate:
 				character_roi.append([x,y,w,h]);
 				cv2.rectangle(self.plate_image_char, (x,y), (x+w, y+h), (0,0,255), 1);
 
-		print("[findCharacterContour]: Plate characters found");
+		logger.info("Plate characters found");
 		return True;
 
 	# we will have a catalogue of every character and number
