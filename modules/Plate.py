@@ -119,16 +119,25 @@ class Plate:
 	""" Character comparison against our training images using SIFT
 	algorithm """
 	def trainingComparison(self, characters_array):
-		detector = cv2.SIFT();
-		matcher = cv2.BFMatcher(cv2.NORM_L2);
+		detector = cv2.xfeatures2d.SIFT_create();
+		matcher = cv2.BFMatcher();
+
 		logger.info("Attempting to read %s characters.", str(len(self.plate_characters)));
 		for character in self.plate_characters:
 			max_score = 0;
 			best_match = "*";
-			for training_character in characters_array:
 
+			for training_character in characters_array:
+				key1, des1 = detector.detectAndCompute(character, None);
+				key2, des2 = detector.detectAndCompute(training_character.character_image, None);
+				matches = matcher.knnMatch(des1, des2, k=2);
+				score = 0;
+				for m,n in matches:
+					if m.distance < 0.6*n.distance:
+						score += 1;
 				if score > max_score:
 					best_match = training_character.character;
+					max_score = score;
 
 			# append found character to plate number
 			self.plate_number += best_match;
