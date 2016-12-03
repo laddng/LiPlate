@@ -87,6 +87,13 @@ class Plate:
 		print("[findCharacterContour]: Plate characters found");
 		return True;
 
+	# we will have a catalogue of every character and number
+	# A-Z, 1-9 where we will compare the histogram to the 
+	# plate character and the highest score will be the correct
+	# plate character
+	def histogramComparison(self):
+		return True;
+
 	def plot(self, figure, subplot, image, title):
 		figure.subplot(subplot);
 		figure.imshow(image);
