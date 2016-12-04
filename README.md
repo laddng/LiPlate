@@ -43,9 +43,13 @@ Working through SIFT, contours, and OCR was extremely fascinating since each had
 
 ### Versions
 There were many different approaches mentioned above in my research. I took care to create different Git branches for each approach so that you can try the different ways I approached this problem. Branches:
+
 	* `master` : Contains the best version of this program.
+
 	* `SIFT-method`: The original approach I had to the problem using the SIFT algorithm.
+
 	* `SIFT-OCR`: Attempts to read the characters in the plate using the SIFT algorithm and a predefined series of images of license plate characters
+
 	* `Tesseract-OCR`: Attempts to read the characters in the plate using the Tesseract OCR library developed by HP/Google
 
 ### Setup
