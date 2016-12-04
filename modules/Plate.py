@@ -43,9 +43,9 @@ class Plate:
 	in the image of a car """
 	def findContour(self):
 		self.gray_image = self.grayImage(deepcopy(self.original_image));
-		self.gray_image = cv2.medianBlur(self.gray_image, 21);
+		self.gray_image = cv2.medianBlur(self.gray_image, 5);
 
-		_,self.gray_image = cv2.threshold(self.gray_image, 100, 255, cv2.THRESH_OTSU);
+		self.gray_image = cv2.adaptiveThreshold(self.gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 43,2);
 		_,contours,_ = cv2.findContours(self.gray_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE);
 
 		w,h,x,y = 0,0,0,0;
@@ -61,7 +61,6 @@ class Plate:
 			if w > 100 and w < 200 and h > 60 and h < 100:
 				self.roi.append([x,y,w,h]);
 				cv2.rectangle(self.plate_located_image, (x,y), (x+w, y+h), (0,255,0), 10);
-
 		logger.info("%s potential plates found.", str(len(self.roi)));
 		return True;
 
@@ -87,7 +86,6 @@ class Plate:
 		[x,y,w,h] = dimensions;
 		character = deepcopy(self.plate_image);
 		character = deepcopy(character[y:y+h,x:x+w]);
-		logging.debug("Depth of character image: %s", str(character.shape));
 		return character;
 
 	""" Finds contours in the cropped image of a license plate
