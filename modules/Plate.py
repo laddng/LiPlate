@@ -1,6 +1,8 @@
 import cv2;
 import numpy as np;
 import logging;
+import pytesseract as tes;
+from PIL import Image;
 from modules.TrainingCharacter import *;
 from matplotlib import pyplot as plt;
 from copy import deepcopy, copy;
@@ -76,7 +78,7 @@ class Plate:
 	cropped image of a license plate """
 	def readPlateNumber(self, characters_array):
 		self.findCharacterContour();
-		self.trainingComparison(characters_array);
+		self.tesseractCharacter();
 		return True;
 
 	""" Crops individual characters out of a plate image 
@@ -85,7 +87,7 @@ class Plate:
 		[x,y,w,h] = dimensions;
 		character = deepcopy(self.plate_image);
 		character = deepcopy(character[y:y+h,x:x+w]);
-		character = cv2.cvtColor(character, cv2.COLOR_BGR2GRAY);
+		logging.debug("Depth of character image: %s", str(character.shape));
 		return character;
 
 	""" Finds contours in the cropped image of a license plate
@@ -110,26 +112,19 @@ class Plate:
 			# rough dimensions of a character
 			if h > 20 and h < 90 and w > 10 and w < 50:
 				character = self.cropCharacter([x,y,w,h]);
-				self.plate_characters.append(character);
+				self.plate_characters.append([x, character]);
 				cv2.rectangle(self.plate_image_char, (x,y), (x+w, y+h), (0,0,255), 1);
 
 		logger.info("%s plate characters found", str(len(self.plate_characters)));
 		return True;
 
-	""" Character comparison against our training images using SIFT
-	algorithm """
-	def trainingComparison(self, characters_array):
-		logger.info("Attempting to read %s characters.", str(len(self.plate_characters)));
-		for character in self.plate_characters:
-			max_score = 0;
-			best_match = "*";
-			for training_character in characters_array:
-				score = 0;
-				if score > max_score:
-					best_match = training_character.character;
-
-			# append found character to plate number
-			self.plate_number += best_match;
+	""" Tesseract: reads the character using the Tesseract libary """
+	def tesseractCharacter(self):
+		self.plate_characters = sorted(self.plate_characters, key=lambda x: x[0]); # sort contours left to right
+		for character in self.plate_characters[:8]:	# only first 8 contours
+			char_image = Image.fromarray(character[1]);
+			char = tes.image_to_string(char_image, config='-psm 10');
+			self.plate_number += char.upper();
 		return True;
 
 	""" Subplot generator for images """
