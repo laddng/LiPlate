@@ -2,10 +2,12 @@
 
 This Python/OpenCV script takes a series of images of cars and determines where their license plates are. Afterwards, it attempts to read the plate number and display it to the user.
 
---
 Inputs: Images of cars.
+
 Outputs: Cropped images of license plates, clearly showing their numbers.
+
 Constraints: Only front or back photos of cars in clear daylight.
+
 Assumptions: License plates are USA plates with 6-8 characters in the plate number.
 
 ## Setup
