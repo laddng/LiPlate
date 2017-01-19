@@ -19,6 +19,20 @@ Once the dependencies are installed, run the program by simply placing your imag
 $ python main.py
 ```
 
+Dependencies:
+
+* pytesseract
+
+* PIL/python-pillow
+
+* OpenCV
+
+* matplotlib
+
+* tesseract
+
+* tesseract-data-eng library
+
 ## Initial Approach - SIFT Algorithm
 Initially, I attempted to solve this problem using the SIFT algorithm. With the training image being an image of a license plate, I looped through all the photos of cars and tried to identify similar features with OpenCV's SIFT function. This proved unsuccessful because there was not enough similarity between the one training image I was using and the different images of cars who had different plate numbers as well as plate colors. In addition, there was too much noise in my testing images of cars. An attempt to remove the noise with a heavy Gaussian Blur did not work as well.
 
